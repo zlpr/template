@@ -21,6 +21,7 @@ public class PlayerController {
 
     @PostMapping("/rest/players")
     public Player createPlayer(@RequestBody Player player) {
+
         return playerService.create(player);
     }
 

@@ -29,7 +29,18 @@ public class PlayerService {
 
     public Player create(Player player) {
 
+        if (player.getName() == null)throw new BadRequestException("400");
+        if (player.getTitle() == null)throw new BadRequestException("400");
+        if (player.getRace() == null)throw new BadRequestException("400");
+        if (player.getProfession() == null)throw new BadRequestException("400");
+        if (player.getBirthday() == null)throw new BadRequestException("400");
+        if (player.getBanned() == null)
+            player.setBanned(false);
+        if (player.getExperience() == null)throw new BadRequestException("400");
+
+                invalidPlayer(player);
         return playerRepository.save(player);
+
     }
 
     public void   deletePlayer(Long id) {
@@ -70,15 +81,9 @@ public class PlayerService {
         if (player.getExperience() != null)
             playerUp.setExperience(player.getExperience());
 
-
-
         playerUp.setLevel(currentLevl(playerUp.getExperience()));
         playerUp.setUntilNextLevel(untilNextLevel(playerUp.getLevel(),playerUp.getExperience()));
-
         invalidPlayer(playerUp);
-
-
-
         playerRepository.save(playerUp);
 
         return playerUp;
