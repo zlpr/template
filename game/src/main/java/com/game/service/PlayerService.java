@@ -38,7 +38,11 @@ public class PlayerService {
             player.setBanned(false);
         if (player.getExperience() == null)throw new BadRequestException("400");
 
-                invalidPlayer(player);
+
+        invalidPlayer(player);
+        player.setLevel(currentLevl(player.getExperience()));
+        player.setUntilNextLevel(untilNextLevel(player.getLevel(),player.getExperience()));
+
         return playerRepository.save(player);
 
     }
@@ -96,11 +100,12 @@ public class PlayerService {
             throw new BadRequestException("Title > 30");
         else if (player.getExperience() < 0 || player.getExperience() > 10000000)
             throw new BadRequestException("Experience not [0-10000000]");
-
-             //if (player.getBirthday().getTime() < 60904915200000L||
-           // player.getBirthday().getTime() > 92461910400000L)
-           // throw new BadRequestException("Birthday not [2000-3000]");
         if (player.getBirthday().getTime() < 0L) throw new BadRequestException("Birthday < 0");
+           //  if (player.getBirthday().getTime() < 60904915200000L||
+           // player.getBirthday().getTime() > 92461910400000L)
+        // throw new BadRequestException("Birthday not [2000-3000]");
+
+
         return true;
 
 
@@ -150,7 +155,25 @@ public class PlayerService {
                     .filter(player -> maxExperience == null || player.getExperience() <= maxExperience)
                     .filter(player -> minLevel == null || player.getLevel() >= minLevel)
                     .filter(player -> maxLevel == null || player.getLevel() <= maxLevel)
-                    .collect(Collectors.toList())
-                    ;
+                    .collect(Collectors.toList());
+    }
+
+    public Integer getAllCount(String name, String title, Race race, Profession profession,
+                               Long after, Long before, Boolean banned, Integer minExperience,
+                               Integer maxExperience, Integer minLevel, Integer maxLevel) {
+
+      return   playerRepository.findAll().stream()
+                .filter(player -> name == null || player.getName().contains(name))
+                .filter(player -> title == null || player.getTitle().contains(title))
+                .filter(player -> race == null || player.getRace().equals(race))
+                .filter(player -> profession == null || player.getProfession().equals(profession))
+                .filter(player -> after == null || player.getBirthday().getTime() > after )
+                .filter(player -> before == null || player.getBirthday().getTime() < before)
+                .filter(player -> banned == null || player.getBanned().equals(banned))
+                .filter(player -> minExperience == null || player.getExperience() >= minExperience)
+                .filter(player -> maxExperience == null || player.getExperience() <= maxExperience)
+                .filter(player -> minLevel == null || player.getLevel() >= minLevel)
+                .filter(player -> maxLevel == null || player.getLevel() <= maxLevel)
+                .collect(Collectors.toList()).size();
     }
 }

@@ -47,9 +47,9 @@ public class PlayerController {
                             @RequestParam(required = false) Integer maxExperience,
                             @RequestParam(required = false) Integer minLevel,
                             @RequestParam(required = false) Integer maxLevel) {
-        return getAll(name, title, race, profession, after, before, banned,  minExperience,
-                maxExperience, minLevel, maxLevel, null, null, null)
-                .size();
+        return playerService.getAllCount(name, title, race, profession, after, before, banned,  minExperience,
+                maxExperience, minLevel, maxLevel);
+
     }
 
 
