@@ -19,12 +19,13 @@ public class Player {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
     private String name;
     private String title;
+    @Enumerated(value = EnumType.STRING)
     private Race race;
+    @Enumerated(value = EnumType.STRING)
     private Profession profession;
-    private Date birthday;
+    private Timestamp birthday;
     private Boolean banned;
     private Integer experience;
     @Column(name = "level")
@@ -72,7 +73,7 @@ public class Player {
         this.profession = profession;
     }
 
-    public Date getBirthday() {
+    public Timestamp getBirthday() {
         return birthday;
     }
 

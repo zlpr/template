@@ -30,9 +30,9 @@ public class PlayerController {
     }
 
     @PostMapping("/rest/players/{id}")
-    public void updatePlayer(@RequestBody Player player,@PathVariable Long id){
+    public Player updatePlayer(@RequestBody Player player,@PathVariable Long id){
         player.setId(id);
-        playerService.updatePlayer(player);
+      return   playerService.updatePlayer(player, id);
     }
     @GetMapping("/rest/players/count")
     public Integer getCount(@RequestParam(required = false) String name,
