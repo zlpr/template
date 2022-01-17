@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 
 import javax.xml.crypto.Data;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -101,12 +104,15 @@ public class PlayerService {
         else if (player.getExperience() < 0 || player.getExperience() > 10000000)
             throw new BadRequestException("Experience not [0-10000000]");
         if (player.getBirthday().getTime() < 0L) throw new BadRequestException("Birthday < 0");
-           //  if (player.getBirthday().getTime() < 60904915200000L||
-           // player.getBirthday().getTime() > 92461910400000L)
-        // throw new BadRequestException("Birthday not [2000-3000]");
 
+        LocalDateTime minDate = LocalDateTime.of(LocalDate.of(2000, 1, 1), LocalTime.of(0, 0));
+        LocalDateTime maxDate = LocalDateTime.of(LocalDate.of(3000, 1, 1), LocalTime.of(0, 0));
+
+        if (minDate.isAfter(player.getBirthday().toLocalDateTime()) || maxDate.isBefore(player.getBirthday().toLocalDateTime()))
+            throw new BadRequestException("Birthday not [2000-3000]");
 
         return true;
+
 
 
     }
@@ -141,21 +147,38 @@ public class PlayerService {
 
         if (pageSize == null) pageSize = 3;
         if (pageNumber == null) pageNumber = 0;
-        if (order == null) order = PlayerOrder.ID;
 
-        return playerRepository.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(order.getFieldName()))).stream()
-                    .filter(player -> name == null || player.getName().contains(name))
-                    .filter(player -> title == null || player.getTitle().contains(title))
-                    .filter(player -> race == null || player.getRace().equals(race))
-                    .filter(player -> profession == null || player.getProfession().equals(profession))
-                    .filter(player -> after == null || player.getBirthday().getTime() > after )
-                    .filter(player -> before == null || player.getBirthday().getTime() < before)
-                    .filter(player -> banned == null || player.getBanned().equals(banned))
-                    .filter(player -> minExperience == null || player.getExperience() >= minExperience)
-                    .filter(player -> maxExperience == null || player.getExperience() <= maxExperience)
-                    .filter(player -> minLevel == null || player.getLevel() >= minLevel)
-                    .filter(player -> maxLevel == null || player.getLevel() <= maxLevel)
-                    .collect(Collectors.toList());
+        return playerRepository.findAll().stream()
+                .sorted(((player1, player2) -> {
+                    if (PlayerOrder.LEVEL.equals(order)) {
+                        return player1.getLevel().compareTo(player2.getLevel());
+                    }
+                    if (PlayerOrder.BIRTHDAY.equals(order)) {
+                        return player1.getBirthday().compareTo(player2.getBirthday());
+                    }
+
+                    if (PlayerOrder.EXPERIENCE.equals(order)) {
+                        return player1.getExperience().compareTo(player2.getExperience());
+                    }
+                    if (PlayerOrder.NAME.equals(order)) {
+                        return player1.getName().compareTo(player2.getName());
+                    }
+                    return player1.getId().compareTo(player2.getId());
+                }))
+                .filter(player -> name == null || player.getName().contains(name))
+                .filter(player -> title == null || player.getTitle().contains(title))
+                .filter(player -> race == null || player.getRace().equals(race))
+                .filter(player -> profession == null || player.getProfession().equals(profession))
+                .filter(player -> after == null || player.getBirthday().getTime() > after )
+                .filter(player -> before == null || player.getBirthday().getTime() < before)
+                .filter(player -> banned == null || player.getBanned().equals(banned))
+                .filter(player -> minExperience == null || player.getExperience() >= minExperience)
+                .filter(player -> maxExperience == null || player.getExperience() <= maxExperience)
+                .filter(player -> minLevel == null || player.getLevel() >= minLevel)
+                .filter(player -> maxLevel == null || player.getLevel() <= maxLevel)
+                .skip(pageSize*pageNumber)
+                .limit(pageSize)
+                .collect(Collectors.toList());
     }
 
     public Integer getAllCount(String name, String title, Race race, Profession profession,
