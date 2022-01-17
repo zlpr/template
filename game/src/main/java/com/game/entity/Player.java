@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -13,13 +17,14 @@ public class Player {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     private String name;
     private String title;
     private Race race;
     private Profession profession;
-    private Timestamp birthday;
+    private Date birthday;
     private Boolean banned;
     private Integer experience;
     @Column(name = "level")
@@ -67,7 +72,7 @@ public class Player {
         this.profession = profession;
     }
 
-    public Timestamp getBirthday() {
+    public Date getBirthday() {
         return birthday;
     }
 
@@ -107,7 +112,6 @@ public class Player {
         this.untilNextLevel = untilNextLevel;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -128,5 +132,14 @@ public class Player {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, title, race, profession, birthday, banned, experience, level, untilNextLevel);
+    }
+
+    @Override
+    public String toString() {
+        return "Player{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", birthday=" + birthday +
+                '}';
     }
 }
